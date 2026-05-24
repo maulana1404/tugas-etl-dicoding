@@ -36,3 +36,12 @@ def load(df, target_file="data/cleaned_data.csv", spreadsheet_url=None):
             
         except Exception as e:
             print(f"❌ Gagal mengunggah ke Google Sheets: {e}")
+
+
+    worksheet.clear()
+    
+    # TAMBAHKAN BARIS INI: Mengubah sisa NaN (jika ada) menjadi teks kosong
+    df = df.fillna("")
+    
+    data_to_upload = [df.columns.values.tolist()] + df.values.tolist()
+    worksheet.update(values=data_to_upload, range_name='A1')
