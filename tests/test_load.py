@@ -1,28 +1,27 @@
-import os
 import pandas as pd
+from unittest.mock import patch, MagicMock
 from utils.load import load
 
-def test_load_saves_file():
-    # 1. Membuat data bersih palsu (dummy data)
-    dummy_data = pd.DataFrame({
-        'Title': ['Kemeja Pria', 'Kaos Polos'],
-        'Price': [15.5, 20.0],
-        'Rating': [4.8, 5.0]
-    })
+@patch('utils.load.gspread.service_account')
+@patch('pandas.DataFrame.to_csv')
+@patch('os.makedirs')
+def test_load_saves_file(mock_makedirs, mock_to_csv, mock_service_account):
+    # 1. Setup Mocking
+    df = pd.DataFrame({'Title': ['Produk A'], 'Price': [160000.0]})
     
-    # 2. Menentukan nama file sementara khusus untuk testing
-    test_filename = "data/test_output.csv"
+    # Membuat objek mock yang berantai untuk gspread
+    mock_gc = MagicMock()
+    mock_sh = MagicMock()
+    mock_worksheet = MagicMock()
     
-    # 3. Memasukkan data ke mesin penyimpan (Load)
-    load(dummy_data, target_file=test_filename)
+    mock_service_account.return_value = mock_gc
+    mock_gc.open_by_url.return_value = mock_sh
+    mock_sh.sheet1 = mock_worksheet # Menghubungkan worksheet ke sheet1
     
-    # 4. Mengecek apakah file test_output.csv benar-benar terbuat di laptop
-    assert os.path.exists(test_filename), "Fungsi load gagal membuat file CSV"
+    # 2. Eksekusi
+    load(df, 'data/cleaned_data.csv', 'dummy_url')
     
-    # 5. Mengecek apakah isi file yang tersimpan sesuai (tidak rusak)
-    saved_df = pd.read_csv(test_filename)
-    assert len(saved_df) == 2, "Jumlah baris data yang disimpan tidak sesuai"
-    
-    # 6. Menghapus file sementara tersebut agar folder tetap rapi
-    if os.path.exists(test_filename):
-        os.remove(test_filename)
+    # 3. Validasi
+    mock_to_csv.assert_called_once()
+    mock_worksheet.clear.assert_called_once() # Sekarang pasti terdeteksi
+    mock_worksheet.update.assert_called_once()
