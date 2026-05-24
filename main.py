@@ -19,9 +19,12 @@ def run_pipeline():
     
     # 3. Fase Load
     print("\n[3/3] Menyimpan data (Load)...")
-    load(df_clean, target_file="data/cleaned_data.csv")
     
-    print("\n=== ETL Pipeline Selesai Sukses! ===")
-
-if __name__ == "__main__":
-    run_pipeline()
+    # PASTE URL GOOGLE SHEETS KAMU DI BAWAH INI (Di dalam tanda kutip)
+    url_sheets_kamu = "https://docs.google.com/spreadsheets/d/13yLeglcHyCPOE8HTiI_bjoE_oUjBhzgWLA71LAyJWhM/edit?hl=id&gid=0#gid=0"
+    
+    load(df_clean, target_file="data/cleaned_data.csv", spreadsheet_url=url_sheets_kamu)
+    
+    print("\n[SELESAI] Pipeline ETL berhasil dijalankan!")
+    
+run_pipeline()
